@@ -4,93 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
-    <title>IPv4 Calculator</title>
+    <title>IP Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        input, button {
+            padding: 8px;
+            margin: 5px 0;
+        }
+        .result-item {
+            margin: 10px 0;
+            text-align: left;
+        }
+        .binary {
+            color: gray;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>IPv4 Calculator</h1>
-        <input type="text" id="ipv4-input" placeholder="Enter IPv4 address (e.g., 192.168.1.1/24)">
-        <button id="calculate-button">Calculate</button>
-        <div id="result" class="result"></div>
-    </div>
 
-    <script>
-        document.getElementById('calculate-button').onclick = calculateIPv4;
+<div class="container">
+    <h1>IPv4 Calculator</h1>
+    <input type="text" id="ipv4-input" placeholder="Enter IPv4 address (e.g., 192.168.1.1/24)">
+    <button id="calculate-button">Calculate</button>
+    <div id="result"></div>
+</div>
 
-        function calculateIPv4() {
-            const ipv4Input = document.getElementById('ipv4-input').value;
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = ""; // Clear previous results
-
-            const [address, prefixLength] = ipv4Input.split('/');
-            if (!isValidIPv4(address) || !isValidPrefixLength(prefixLength)) {
-                resultDiv.innerHTML = `<p class="error">Invalid IPv4 address or prefix length.</p>`;
-                return;
-            }
-
-            const subnetMask = getSubnetMask(prefixLength);
-            const networkAddress = calculateNetworkAddress(address, subnetMask);
-            const broadcastAddress = calculateBroadcastAddress(address, subnetMask);
-            const totalAddresses = Math.pow(2, 32 - prefixLength);
-            const usableAddresses = totalAddresses - 2; // exclude network and broadcast addresses
-            const firstUsableAddress = calculateUsableAddress(networkAddress, 1);
-            const lastUsableAddress = calculateUsableAddress(broadcastAddress, -1);
-
-            resultDiv.innerHTML = `
-                <h2>IPv4 Address Information:</h2>
-                <div class="result-item"><strong>Address:</strong> ${address}/${prefixLength}</div>
-                <div class="result-item"><strong>Subnet Mask:</strong> ${subnetMask}</div>
-                <div class="result-item"><strong>Network Address:</strong> ${networkAddress}</div>
-                <div class="result-item"><strong>Broadcast Address:</strong> ${broadcastAddress}</div>
-                <div class="result-item"><strong>Total Number of Addresses:</strong> ${totalAddresses}</div>
-                <div class="result-item"><strong>Usable Addresses:</strong> ${usableAddresses}</div>
-                <div class="result-item"><strong>First Usable Address:</strong> ${firstUsableAddress}</div>
-                <div class="result-item"><strong>Last Usable Address:</strong> ${lastUsableAddress}</div>
-            `;
-        }
-
-        function isValidIPv4(address) {
-            const parts = address.split('.');
-            return parts.length === 4 && parts.every(part => {
-                const num = parseInt(part);
-                return num >= 0 && num <= 255;
-            });
-        }
-
-        function isValidPrefixLength(prefix) {
-            const num = parseInt(prefix);
-            return num >= 0 && num <= 32;
-        }
-
-        function getSubnetMask(prefixLength) {
-            return Array(4).fill(0).map((_, i) => {
-                return i < Math.floor(prefixLength / 8) ? 255 : parseInt('1'.repeat(prefixLength % 8).padEnd(8, '0'), 2);
-            }).join('.');
-        }
-
-        function calculateNetworkAddress(ip, subnetMask) {
-            const ipParts = ip.split('.').map(Number);
-            const maskParts = subnetMask.split('.').map(Number);
-            return ipParts.map((part, i) => part & maskParts[i]).join('.');
-        }
-
-        function calculateBroadcastAddress(ip, subnetMask) {
-            const ipParts = ip.split('.').map(Number);
-            const maskParts = subnetMask.split('.').map(Number);
-            return ipParts.map((part, i) => part | (maskParts[i] ^ 255)).join('.');
-        }
-
-        function calculateUsableAddress(address, offset) {
-            const parts = address.split('.').map(Number);
-            const intAddress = (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3];
-            const newIntAddress = intAddress + offset;
-            return [
-                (newIntAddress >>> 24) & 255,
-                (newIntAddress >>> 16) & 255,
-                (newIntAddress >>> 8) & 255,
-                newIntAddress & 255
-            ].join('.');
-        }
-    </script>
+<script src="script.js"></script>
 </body>
 </html>
