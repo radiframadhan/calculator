@@ -51,4 +51,46 @@
 
         function isValidIPv4(address) {
             const parts = address.split('.');
-       
+            return parts.length === 4 && parts.every(part => {
+                const num = parseInt(part);
+                return num >= 0 && num <= 255;
+            });
+        }
+
+        function isValidPrefixLength(prefix) {
+            const num = parseInt(prefix);
+            return num >= 0 && num <= 32;
+        }
+
+        function getSubnetMask(prefixLength) {
+            return Array(4).fill(0).map((_, i) => {
+                return i < Math.floor(prefixLength / 8) ? 255 : parseInt('1'.repeat(prefixLength % 8).padEnd(8, '0'), 2);
+            }).join('.');
+        }
+
+        function calculateNetworkAddress(ip, subnetMask) {
+            const ipParts = ip.split('.').map(Number);
+            const maskParts = subnetMask.split('.').map(Number);
+            return ipParts.map((part, i) => part & maskParts[i]).join('.');
+        }
+
+        function calculateBroadcastAddress(ip, subnetMask) {
+            const ipParts = ip.split('.').map(Number);
+            const maskParts = subnetMask.split('.').map(Number);
+            return ipParts.map((part, i) => part | (maskParts[i] ^ 255)).join('.');
+        }
+
+        function calculateUsableAddress(address, offset) {
+            const parts = address.split('.').map(Number);
+            const intAddress = (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3];
+            const newIntAddress = intAddress + offset;
+            return [
+                (newIntAddress >>> 24) & 255,
+                (newIntAddress >>> 16) & 255,
+                (newIntAddress >>> 8) & 255,
+                newIntAddress & 255
+            ].join('.');
+        }
+    </script>
+</body>
+</html>
