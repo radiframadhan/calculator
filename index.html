@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>IPv4 Calculator</title>
+</head>
+<body>
+    <div class="container">
+        <h1>IPv4 Calculator</h1>
+        <input type="text" id="ipv4-input" placeholder="Enter IPv4 address (e.g., 192.168.1.1/24)">
+        <button id="calculate-button">Calculate</button>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('calculate-button').onclick = calculateIPv4;
+
+        function calculateIPv4() {
+            const ipv4Input = document.getElementById('ipv4-input').value;
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = ""; // Clear previous results
+
+            const [address, prefixLength] = ipv4Input.split('/');
+            if (!isValidIPv4(address) || !isValidPrefixLength(prefixLength)) {
+                resultDiv.innerHTML = `<p class="error">Invalid IPv4 address or prefix length.</p>`;
+                return;
+            }
+
+            const subnetMask = getSubnetMask(prefixLength);
+            const networkAddress = calculateNetworkAddress(address, subnetMask);
+            const broadcastAddress = calculateBroadcastAddress(address, subnetMask);
+            const totalAddresses = Math.pow(2, 32 - prefixLength);
+            const usableAddresses = totalAddresses - 2; // exclude network and broadcast addresses
+            const firstUsableAddress = calculateUsableAddress(networkAddress, 1);
+            const lastUsableAddress = calculateUsableAddress(broadcastAddress, -1);
+
+            resultDiv.innerHTML = `
+                <h2>IPv4 Address Information:</h2>
+                <div class="result-item"><strong>Address:</strong> ${address}/${prefixLength}</div>
+                <div class="result-item"><strong>Subnet Mask:</strong> ${subnetMask}</div>
+                <div class="result-item"><strong>Network Address:</strong> ${networkAddress}</div>
+                <div class="result-item"><strong>Broadcast Address:</strong> ${broadcastAddress}</div>
+                <div class="result-item"><strong>Total Number of Addresses:</strong> ${totalAddresses}</div>
+                <div class="result-item"><strong>Usable Addresses:</strong> ${usableAddresses}</div>
+                <div class="result-item"><strong>First Usable Address:</strong> ${firstUsableAddress}</div>
+                <div class="result-item"><strong>Last Usable Address:</strong> ${lastUsableAddress}</div>
+            `;
+        }
+
+        function isValidIPv4(address) {
+            const parts = address.split('.');
+       
