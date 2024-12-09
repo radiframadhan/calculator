@@ -44074,3 +44074,4 @@
 0.0.0.0 hung04.site
 0.0.0.0 7888554.vip
 0.0.0.0 www.jalaa57.cc
+0.0.0.0 kangcilok.cc
